@@ -179,3 +179,64 @@ JOIN Reservations r ON g.guest_id = r.guest_id
 JOIN Service_Usage su ON r.reservation_id = su.reservation_id
 JOIN Services s ON su.service_id = s.service_id
 WHERE g.guest_id = 1;
+
+
+-- Query: Find all payments made within the last month:
+SELECT p.payment_id, g.first_name, g.last_name, p.amount, p.payment_date, p.payment_method
+FROM Payments p
+JOIN Reservations r ON p.reservation_id = r.reservation_id
+JOIN Guests g ON r.guest_id = g.guest_id
+WHERE p.payment_date > DATE_SUB(CURDATE(), INTERVAL 1 MONTH);
+
+-- Query: Get the total revenue collected from each payment method:
+SELECT p.payment_method, SUM(p.amount) AS total_revenue
+FROM Payments p
+GROUP BY p.payment_method;
+
+-- Query: Find all payments made by a specific guest:
+SELECT p.payment_id, p.amount, p.payment_date, p.payment_method
+FROM Payments p
+JOIN Reservations r ON p.reservation_id = r.reservation_id
+WHERE r.guest_id = 1;
+
+-- Query: Get the total amount spent by each guest:
+SELECT g.guest_id, g.first_name, g.last_name, SUM(p.amount) AS total_spent
+FROM Payments p
+JOIN Reservations r ON p.reservation_id = r.reservation_id
+JOIN Guests g ON r.guest_id = g.guest_id
+GROUP BY g.guest_id;
+
+-- Query: Find the total revenue collected in the current year:
+SELECT YEAR(p.payment_date) AS year, SUM(p.amount) AS total_revenue
+FROM Payments p
+WHERE YEAR(p.payment_date) = YEAR(CURDATE())
+GROUP BY YEAR(p.payment_date);
+
+-- Query: Get the monthly revenue report for the current year:
+SELECT MONTH(p.payment_date) AS month, SUM(p.amount) AS total_revenue
+FROM Payments p
+WHERE YEAR(p.payment_date) = YEAR(CURDATE())
+GROUP BY MONTH(p.payment_date)
+ORDER BY month;
+
+-- Query: Find the number of payments made through each payment method:
+SELECT p.payment_method, COUNT(p.payment_id) AS payment_count
+FROM Payments p
+GROUP BY p.payment_method;
+
+-- Query: Get the highest payment made for a single reservation:
+SELECT p.payment_id, p.reservation_id, p.amount, p.payment_date, p.payment_method
+FROM Payments p
+ORDER BY p.amount DESC
+LIMIT 1;
+
+-- Query: Find the average payment amount made by guests:
+SELECT AVG(p.amount) AS average_payment
+FROM Payments p;
+
+-- Query: Get the details of payments made in the last week:
+SELECT p.payment_id, g.first_name, g.last_name, p.amount, p.payment_date, p.payment_method
+FROM Payments p
+JOIN Reservations r ON p.reservation_id = r.reservation_id
+JOIN Guests g ON r.guest_id = g.guest_id
+WHERE p.payment_date > DATE_SUB(CURDATE(), INTERVAL 1 WEEK);
